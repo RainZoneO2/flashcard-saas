@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import getStripe from "@/utils/get-stripe";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
@@ -13,6 +14,32 @@ import {
 import Head from "next/head";
 
 export default function Home() {
+  const handleSubmit = async () => {
+    const checkoutSession = await fetch("/api/checkout_session", {
+      method: "POST",
+      headers: {
+        origin: "https://localhost:3000",
+      },
+    });
+
+    const checkoutSessionJson = await checkoutSession.json();
+
+    if (checkoutSession.statusCode === 500) {
+      console.error(checkoutSession.message);
+      return;
+    }
+
+    const stripe = await getStripe();
+
+    const { error } = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson.id,
+    });
+
+    if (error) {
+      console.warn(error.message);
+    }
+  };
+
   return (
     <Container maxWidth="lg" disableGutters>
       <Head>
@@ -138,7 +165,12 @@ export default function Home() {
               <Typography>
                 Unlimited flashcards and storage with priority support.
               </Typography>
-              <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+                onClick={handleSubmit}
+              >
                 Choose Pro
               </Button>
             </Box>
