@@ -60,7 +60,7 @@ export default function Flashcard() {
             <Card>
               <CardActionArea
                 onClick={() => {
-                  handleCardClick(id);
+                  handleCardClick(flashcard.name);
                 }}
               >
                 <CardContent>
